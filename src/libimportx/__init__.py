@@ -1,4 +1,4 @@
-
+#SPDX: GPL-3.0-or-later
 EXTENSION_TABLE={
     ".py":"python3 $IN",
     ".js":"node $IN",

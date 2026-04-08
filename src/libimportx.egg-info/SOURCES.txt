@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+src/libimportx/__init__.py
+src/libimportx.egg-info/PKG-INFO
+src/libimportx.egg-info/SOURCES.txt
+src/libimportx.egg-info/dependency_links.txt
+src/libimportx.egg-info/top_level.txt

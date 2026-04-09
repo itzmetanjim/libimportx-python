@@ -118,6 +118,14 @@ def monoencode(t):
         return {"__libimportx_foreign_type__": "opaque",
                 "type": tname(t), "handle": handle}
 
+def monoencode_host(t):
+    if (hasattr(t,"_handle") and t._handle!=None):
+        return {"__libimportx_foreign_type__":"function" if\
+                getattr(t,"_type",None) is None else "opaque",\
+                "handle":t._handle,
+                "type":getattr(t,"_type","")}
+    return monoencode(t)
+
 def convert(x):
     return json.dumps(x,default=monoencode)
 def deconvert(x):
@@ -219,7 +227,7 @@ def exportx(root=None):
                     else:
                         try:
                             setIdentifier(identifier,deconvert(value),nsp=root)
-                            s.sendall(b"+\n")
+                            s.sendall(b'+"OK"\n')
                         except Exception as e:
                             error={"type":tname(e),"message":str(e)}
                             s.sendall(b"-"+json.dumps(error).encode()+b"\n")
@@ -235,12 +243,19 @@ class ImportxBase():
     def _make_req(self,dtype,ide,**kwargs):
         fide=ide
         if self._handle:
+            if hasattr(ide,"_handle"):
+                inner=ide._handle
+            else:
+                inner=ide
+
             if ide != None:
-                fide=self._handle+"["+json.dumps(ide,default=monoencode)+"]"
+                fide=self._handle+\
+                    "["+json.dumps(inner,default=monoencode_host)+"]"
             else:
                 fide=self._handle
         req={"type":dtype,"identifier":fide,**kwargs}
-        self._sock.sendall((json.dumps(req,default=monoencode)+"\n").encode())
+        self._sock.sendall((json.dumps(req,default=monoencode_host)+"\n")\
+                           .encode())
         line,lo=recvLine(self._sock,self._leftover)
         self._leftover=lo
         if not line:

@@ -360,6 +360,9 @@ def importx(filepath,cmd=None):
         "LIBIMPORTX_HOST":sockpath,
         "LIBIMPORTX_TOKEN":token
     })
+    if("$OUT" in cmd):
+        if cmd.count("$OUT")==1:
+            cmd+=" && $OUT"
     try:
         process=subprocess.Popen(cmd,env=envi,shell=True)
     except Exception as e:

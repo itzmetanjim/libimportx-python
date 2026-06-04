@@ -178,7 +178,7 @@ def exportx(root=None):
         stype=socket.AF_UNIX
     with socket.socket(stype,socket.SOCK_STREAM) as s:
         try:
-            s.connect(lihost)
+            s.connect(lihost if ":" not in lihost else tuple(lihost.split(":")))
             s.sendall(litoken.encode()+b"\n")
             data, leftover=recvLine(s,b"")
             if data!=b"+\n":

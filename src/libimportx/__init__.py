@@ -172,7 +172,11 @@ def exportx(root=None):
 
     lihost=os.environ.get("LIBIMPORTX_HOST")
     litoken=os.environ.get("LIBIMPORTX_TOKEN")
-    with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as s:
+    if ":" in lihost:
+        stype=socket.AF_INET
+    else:
+        stype=socket.AF_UNIX
+    with socket.socket(stype,socket.SOCK_STREAM) as s:
         try:
             s.connect(lihost)
             s.sendall(litoken.encode()+b"\n")
@@ -324,13 +328,13 @@ class ImportxNamespace(dict):
         self[attr]=value
 
 def importx(filepath,cmd=None):
-    if not hasattr(socket, 'AF_UNIX'):
-        if os.name == 'nt':
-            socket.AF_UNIX = 1
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File {filepath} does not exist")
-    tempdir=tempfile.mkdtemp(prefix="libx_")
-    sockpath=os.path.join(tempdir,"libx.sock")
+    if os.name!="nt":
+        tempdir=tempfile.mkdtemp(prefix="libx_")
+        sockpath=os.path.join(tempdir,"libx.sock")
+    else:
+        pass
     token=str(uuid.uuid4())
     if not cmd:
         ext=os.path.splitext(filepath)[1]
@@ -351,8 +355,9 @@ def importx(filepath,cmd=None):
     else:
         cmd=cmd.replace("$IN",f'"{abspath}"').replace("$OUT",f'"{tmpout}"')
     try:
-        server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
-        server.bind(sockpath)
+        server=socket.socket(socket.AF_UNIX if os.name!="nt"
+                             else socket.AF_INET,socket.SOCK_STREAM)
+        server.bind(sockpath if os.name!="nt" else ("127.0.0.1",0))
         server.listen(1)
     except Exception as e:
         shutil.rmtree(tempdir)
@@ -360,7 +365,8 @@ def importx(filepath,cmd=None):
     envi=os.environ.copy()
     envi.update({
         "LIBIMPORTX":"true",
-        "LIBIMPORTX_HOST":sockpath,
+        "LIBIMPORTX_HOST":sockpath if os.name!="nt"
+            else ",".join(map(str,server.getsockname())),
         "LIBIMPORTX_TOKEN":token
     })
     if("$OUT" in cmd):

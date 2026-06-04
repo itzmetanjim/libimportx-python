@@ -330,11 +330,11 @@ class ImportxNamespace(dict):
 def importx(filepath,cmd=None):
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File {filepath} does not exist")
+    tempdir=tempfile.mkdtemp(prefix="libx_")
     if os.name!="nt":
-        tempdir=tempfile.mkdtemp(prefix="libx_")
         sockpath=os.path.join(tempdir,"libx.sock")
     else:
-        pass
+        pass #make sure that accessing sockpath results in an error
     token=str(uuid.uuid4())
     if not cmd:
         ext=os.path.splitext(filepath)[1]

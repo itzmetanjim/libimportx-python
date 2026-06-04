@@ -241,9 +241,9 @@ def exportx(root=None):
 
 class ImportxBase():
     def __init__(self,sock,handle=None):
-            self._sock=sock
-            self._handle=handle #none for module
-            self._leftover=b""
+        self._sock=sock
+        self._handle=handle #none for module
+        self._leftover=b""
     def _make_req(self,dtype,ide,**kwargs):
         fide=ide
         if self._handle:
@@ -366,7 +366,7 @@ def importx(filepath,cmd=None):
     envi.update({
         "LIBIMPORTX":"true",
         "LIBIMPORTX_HOST":sockpath if os.name!="nt"
-            else ",".join(map(str,server.getsockname())),
+        else ":".join(map(str,server.getsockname())),
         "LIBIMPORTX_TOKEN":token
     })
     if("$OUT" in cmd):

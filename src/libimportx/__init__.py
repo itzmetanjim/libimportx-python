@@ -324,6 +324,9 @@ class ImportxNamespace(dict):
         self[attr]=value
 
 def importx(filepath,cmd=None):
+    if not hasattr(socket, 'AF_UNIX'):
+        if os.name == 'nt':
+            socket.AF_UNIX = 1
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File {filepath} does not exist")
     tempdir=tempfile.mkdtemp(prefix="libx_")

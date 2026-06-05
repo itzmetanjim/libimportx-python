@@ -236,6 +236,8 @@ def exportx(root=None):
                         except Exception as e:
                             error={"type":tname(e),"message":str(e)}
                             s.sendall(b"-"+json.dumps(error).encode()+b"\n")
+        except (ConnectionResetError, BrokenPipeError, KeyboardInterrupt):
+            pass
         except Exception as e:
             print(f"Failed to connect to {lihost}: {e}")
             exit(1)
